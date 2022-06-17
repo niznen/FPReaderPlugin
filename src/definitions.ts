@@ -1,3 +1,5 @@
 export interface FPReaderPlugin {
-  echo(options: { value: string }): Promise<{ value: string }>;
+  getDeviceInfo(): Promise<any>;
+  requestPermission(): Promise<any>;
+  capture(): Promise<any>;
 }

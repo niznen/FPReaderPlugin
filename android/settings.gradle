@@ -1,2 +1,6 @@
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
+include ':IBScanUltimate'
+project(':IBScanUltimate').projectDir = new File('./IBScanUltimate')
+include ':IBScanCommon'
+project(':IBScanCommon').projectDir = new File('./IBScanCommon')

@@ -11,9 +11,47 @@ npx cap sync
 
 ## API
 
-<docgen-index></docgen-index>
+<docgen-index>
+
+* [`getDeviceInfo()`](#getdeviceinfo)
+* [`requestPermission()`](#requestpermission)
+* [`capture()`](#capture)
+
+</docgen-index>
 
 <docgen-api>
-<!-- run docgen to generate docs from the source -->
-<!-- More info: https://github.com/ionic-team/capacitor-docgen -->
+<!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
+
+### getDeviceInfo()
+
+```typescript
+getDeviceInfo() => Promise<any>
+```
+
+**Returns:** <code>Promise&lt;any&gt;</code>
+
+--------------------
+
+
+### requestPermission()
+
+```typescript
+requestPermission() => Promise<any>
+```
+
+**Returns:** <code>Promise&lt;any&gt;</code>
+
+--------------------
+
+
+### capture()
+
+```typescript
+capture() => Promise<any>
+```
+
+**Returns:** <code>Promise&lt;any&gt;</code>
+
+--------------------
+
 </docgen-api>
