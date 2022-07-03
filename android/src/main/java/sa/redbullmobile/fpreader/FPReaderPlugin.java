@@ -2,6 +2,7 @@ package sa.redbullmobile.fpreader;
 
 import android.app.Activity;
 import android.hardware.usb.UsbManager;
+import android.nfc.Tag;
 import android.util.Log;
 
 import com.getcapacitor.JSObject;
@@ -17,8 +18,8 @@ import com.integratedbiometrics.ibscanultimate.IBScanException;
 
 @CapacitorPlugin(name = "FPReader")
 public class FPReaderPlugin extends Plugin{
-    private FPReader implementation = new FPReader();
     private FPReader ibActivityScanListener = null;
+    private static final String TAG = "IBScanListenerPlugin";
 
     private Activity context;
 
@@ -39,26 +40,31 @@ public class FPReaderPlugin extends Plugin{
 
 
     public void load() {
-        implementation = new FPReader(IBScan.getInstance(this.getContext()));
-        IBScan ibScan = IBScan.getInstance(this.getContext());
-        ibActivityScanListener = new FPReader(ibScan);
         context = this.getActivity();
     }
 
-    @PluginMethod void getDeviceInfo(PluginCall call){
-        IBScan ibScan = IBScan.getInstance(this.getContext());
-        JSObject ret = new JSObject();
-        try {
-            ret.put("serial", ibScan.getDeviceDescription(0).serialNumber);
-            call.resolve();
-        } catch (IBScanException e) {
-            e.printStackTrace();
-            call.reject(e.getMessage());
+    @PluginMethod
+    public void getDeviceInfo(PluginCall call){
+        if(ibActivityScanListener == null) {
+            requestPermission(call);
         }
+        JSObject ret = new JSObject();
+        String serial = ibActivityScanListener.GetDeviceInfo();
+        ret.put("serial", serial);
+        debugMessage("Serial = "+serial);
+        if((serial == null) || (serial.isEmpty()))
+            call.reject("Failed to get data");
+        else
+            call.resolve(ret);
     }
 
     @PluginMethod
     public void requestPermission(PluginCall call) {
+        if(ibActivityScanListener == null) {
+            IBScan ibScan = IBScan.getInstance(this.getContext());
+            ibActivityScanListener = new FPReader(ibScan, call);
+            initDeviceSettings(call);
+        }
         if(!hasRequiredPermissions())
             requestAllPermissions(call, "onPermsCallback");
     }
@@ -73,7 +79,6 @@ public class FPReaderPlugin extends Plugin{
             } catch (IBScanException e) {
                 e.printStackTrace();
             }
-
             call.resolve();
         } else {
             call.reject("Permission is required to take a picture");
@@ -81,7 +86,7 @@ public class FPReaderPlugin extends Plugin{
     }
 
     private void debugMessage(String message) {
-        Log.d("FPReader Plugin", message);
+        Log.d(TAG, ""+message);
     }
 
     private void sendError(long result, PluginCall call) {
@@ -100,13 +105,21 @@ public class FPReaderPlugin extends Plugin{
 
 
     @PluginMethod
-    private void capture(PluginCall callbackContext) {
+    public void capture(PluginCall callbackContext) {
         debugMessage("Capture x Pressed CAPTURE captureB64");
         dwTimeStart = System.currentTimeMillis();
 
         long result = 0;
         IBScanDevice ibScanDevice = ibActivityScanListener.IBActivityScanDevice;
         ibActivityScanListener.SetCallbackContext(callbackContext);
+
+        if(ibScanDevice == null){
+            IBScan ibScan = IBScan.getInstance(this.getContext());
+            ibActivityScanListener = new FPReader(ibScan, callbackContext);
+            initDeviceSettings(callbackContext);
+            ibScanDevice = ibActivityScanListener.IBActivityScanDevice;
+            ibActivityScanListener.SetCallbackContext(callbackContext);
+        }
 
         try {
             ibActivityScanListener.ScanFingerprint(ibScanDevice);
@@ -146,7 +159,9 @@ public class FPReaderPlugin extends Plugin{
 
             ibActivityScanListener.IBActivityScanDevice = device;
             ibActivityScanListener.SetDeviceScanListener();
+            debugMessage("Device Open Successful");
         } catch (Exception e) {
+            debugMessage(""+e.getMessage());
             e.printStackTrace();
             callbackContext.reject("101");
             return;

@@ -21,26 +21,41 @@ import java.io.ObjectOutputStream;
 
 public class FPReader implements IBScanListener, IBScanDeviceListener {
 
-    private static final String TAG = "IB Scan Listener";
+    private static final String TAG = "IBScanListener";
 
     public IBScan IBActivityScan;
     public Boolean IsIBScan = null;
     public IBScanDevice IBActivityScanDevice = null;
     private PluginCall callbackContext = null;
     private String mDeviceSN = null;
+    private int deviceId = 0;
     private IBScanDevice.FingerQualityState fingerQualy = IBScanDevice.FingerQualityState.FINGER_NOT_PRESENT;
 
     public String echo(String value) {
-        Log.i("Echo", value);
+        Log.i(TAG, value);
         return value;
     }
 
     public FPReader() {
     }
 
-    public FPReader(IBScan IBActivityScan) {
+    public FPReader(IBScan IBActivityScan, PluginCall call) {
+        //Log.d(TAG, "Initializing");
+        callbackContext = call;
         this.IBActivityScan = IBActivityScan;
         this.IBActivityScan.setScanListener(this);
+    }
+
+    public String GetDeviceInfo(){
+        String serial = "";
+        try {
+            Log.d(TAG,""+IBActivityScan.getDeviceCount());
+            serial = IBActivityScan.getDeviceDescription(0).serialNumber;
+        } catch (IBScanException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+        return serial;
     }
 
     public void SetCallbackContext(PluginCall callbackContext)  {
@@ -80,7 +95,7 @@ public class FPReader implements IBScanListener, IBScanDeviceListener {
         IBScanDevice.ImageResolution imgRes = IBScanDevice.ImageResolution.RESOLUTION_500;
         boolean bAvailable = device.isCaptureAvailable(IBScanDevice.ImageType.FLAT_SINGLE_FINGER, imgRes);
         if (!bAvailable)
-            throw new Exception("The capture mode (" + IBScanDevice.ImageType.FLAT_SINGLE_FINGER + ") is not available");
+            throw new Exception(TAG+"The capture mode (" + IBScanDevice.ImageType.FLAT_SINGLE_FINGER + ") is not available");
 
         int captureOptions = 0;
         captureOptions |= IBScanDevice.OPTION_AUTO_CONTRAST;
@@ -296,7 +311,8 @@ public class FPReader implements IBScanListener, IBScanDeviceListener {
     }
 
     @Override
-    public void scanDevicePermissionGranted(int deviceId, boolean granted) {
+    public void scanDevicePermissionGranted(int deviceid, boolean granted) {
+        deviceId = deviceid;
         OnPermissionGranted(granted);
     }
 
