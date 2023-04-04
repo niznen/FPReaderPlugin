@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.util.Log;
 
 import org.libusb.LibUsbManager;
@@ -244,7 +245,17 @@ public class IBScan
 	    	/* Create intent and request permission with the USB manager. */
 	    	final UsbManager    manager          = (UsbManager)this.m_context.getSystemService(Context.USB_SERVICE);
 	    	final Intent        intent           = new Intent(ACTION_USB_PERMISSION);
-	    	final PendingIntent permissionIntent = PendingIntent.getBroadcast(this.m_context, 0, intent, 0);
+            final PendingIntent permissionIntent;
+			
+            if (Build.VERSION.SDK_INT >= 23) {
+                // Create a PendingIntent using FLAG_IMMUTABLE.
+                permissionIntent = PendingIntent.getBroadcast(this.m_context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                // Existing code that creates a PendingIntent.
+                permissionIntent = PendingIntent.getBroadcast(this.m_context, 0, intent, 0);
+            }
+
 	    	manager.requestPermission(device, permissionIntent);
     	}
     }

@@ -87,7 +87,11 @@
  *                 Added wsqDecodeToMemNative() method
  *     2021/07/16  Added enumeration value to IBSU_PropertyId
  *                  (VERTICAL_DIRECTION_SEGMENT, RESERVED_SPOOF_LEVEL_THRESHOLD )
- *     2021/08/04  Added IsSpoofFingerDetected() method
+ *	   2022/02/18  Modified enumeration name changed from 
+ *                        VERTICAL_DIRECTION_SEGMENT to
+ *                        DISABLE_SEGMENT_ROTATION
+ *     2022/04/29  Added SaveStandardFileNative() method
+ *                 Added ConvertImageToISOANSINative() method
  *********************************************************************************************** */
 
 package com.integratedbiometrics.ibscanultimate;
@@ -102,6 +106,10 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.integratedbiometrics.ibscancommon.IBCommon;
+import com.integratedbiometrics.ibscancommon.IBCommon.ImageDataExt;
+import com.integratedbiometrics.ibscancommon.IBCommon.StandardFormatData;
+import com.integratedbiometrics.ibscancommon.IBCommon.ImageFormat;
+import com.integratedbiometrics.ibscancommon.IBCommon.StandardFormat;
 
 /**
  * Principal class for interfacing with particular IB scanners.
@@ -122,50 +130,62 @@ public class IBScanDevice
          * [get] Product name string (e.g. "Watson")
          */
         PRODUCT_ID(0),
+
         /**
          * [get] Serial number string
          */
         SERIAL_NUMBER(1),
+
         /**
          * [get] Device manufacturer identifier
          */
         VENDOR_ID(2),
+
         /**
          * [get] IBIA vendor ID
          */
         IBIA_VENDOR_ID(3),
+
         /**
          * [get] IBIA version information
          */
         IBIA_VERSION(4),
+
         /**
          * [get] IBIA device ID
          */
         IBIA_DEVICE_ID(5),
+
         /**
          * [get] Firmware version string
          */
         FIRMWARE(6),
+
         /**
          * [get] Device revision string
          */
         REVISION(7),
+
         /**
          * [get] Production date string
          */
         PRODUCTION_DATE(8),
+
         /**
          * [get] Last service date string
          */
         SERVICE_DATE(9),
+
         /**
          * [get] Image width value
          */
         IMAGE_WIDTH(10),
+
         /**
          * [get] Image height value
          */
         IMAGE_HEIGHT(11),
+
         /**
          * [get/set] The time in milliseconds to acquire the finger print in the auto capture mode 
          * regardless of the number of fingers.  The capture option <code>OPTION_AUTO_CAPTURE</code> 
@@ -173,64 +193,77 @@ public class IBScanDevice
          * The default value is 4000-ms and the value may range between 2000- and 10000-ms.
          */
         IGNORE_FINGER_TIME(12),
+
         /**
          * [get/set] Auto contrast level value
          */
         RECOMMENDED_LEVEL(13),
+
         /**
          * [get] Polling time for blocking image capture (with <code>captureImage()</code>).
          */
         POLLINGTIME_TO_BGETIMAGE(14),
+
         /**
          * [get/set] Power save mode.  Specify the value "TRUE" to enable or "FALSE" to disable.  By 
          * default, power save mode is disabled.
          */
         ENABLE_POWER_SAVE_MODE(15),
+
         /**
          * [get/set] The retry count for communication failures.  The default value is 6, and 
          * the value may range between 1 and 120.
          */
         RETRY_WRONG_COMMUNICATION(16),
+
         /**
          * [get/set] The maximum wait time for image capture, in seconds.  If -1, the timeout is 
          * infinite.  Otherwise, the valid range is between 10- and 3600-seconds, inclusive.  The 
          * default is -1. 
          */
         CAPTURE_TIMEOUT(17),
+
         /** 
          * [get/set] Minimum distance of rolled fingerprint, in millimeters.  The valid range is 
          * between 10- and 30-mm, inclusive.  The default is 15-mm.
          */
         ROLL_MIN_WIDTH(18),
+
         /* [get/set] Roll mode. The valid range is between 0 ~ 1.  The default is 1.
          * 0 : no use smear
-           1 : use notice
+         * 1 : use notice
          */
         ROLL_MODE(19),
+
         /* [get/set] Roll level. The valid range is between 0 ~ 2.  The default is 1.
          * 0 : low level
-           1 : medium level
-           2 : high level
+         * 1 : medium level
+         * 2 : high level
          */
         ROLL_LEVEL(20),
+
         /* [get/set] The area threshold for image capture for flat fingers and
          * The area threshold for beginning rolled finger.
          * The valid range is between 0 and 12, inclusive, with the default of 6.
          */
         CAPTURE_AREA_THRESHOLD(21),
+
         /* [get/set] Enable decimation mode (TRUE to enable or FALSE to disable).
          * Some of devices (or firmware version) does not support this feature.
          */
         ENABLE_DECIMATION(22),
+
         /* [get/set] Enable capture on release (TRUE to enable or FALSE to disable). The default is FALSE.
          * TRUE  : the result callback will be called when user release the finger from the sensor.
          * FALSE : the result callback will be called when the quality of finger become good
          */
         ENABLE_CAPTURE_ON_RELEASE(23),
+
         /*
          * [get] The device index.
          */
         DEVICE_INDEX(24),
+
         /*
          * [get] The device ID which has same information with UsbDevice class of Android.
          */
@@ -347,22 +380,25 @@ public class IBScanDevice
          * The default values are FALSE.  [Get and set.] */
 	    ENABLE_KOJAK_BEHAVIOR_2_6(49),
 		
-		/* Enable to Horizontalize Segment Rectangles
+		/* Disable to Segment rectangles rotation
          * The default values are FALSE.  [Get and set.] */
-		VERTICAL_DIRECTION_SEGMENT(50),
+		DISABLE_SEGMENT_ROTATION(50),
 	
 		/**
 		 * Reserved string for manufacturer.
 		 */
 		RESERVED_1(200),
+
 		/**
 		 * Reserved string for manufacturer.
 		 */
 		RESERVED_2(201),
+
 		/**
 		 * Reserved string for manufacturer.
 		 */
 		RESERVED_100(202),
+        
 		/* The previmage processing threshold.
 		 * The valid range is between 0 and 2, inclusive, 
 		 * with the default of 0 on embedded processor (ARM, Android and Windows Mobile),
@@ -2332,6 +2368,26 @@ public class IBScanDevice
         
         return (returns);
     }
+	
+	/**
+     * Convert Image Data to Standard Format for write file.
+     * (ISO 19794-2:2005, ISO 19794-4:2005, ISO 19794-2:2011, ISO 19794-4:2011, ANSI/INCITS 378:2004, ANSI/INCITS 381:2004)
+     * 
+     * @param image       input image data for roll to slap comparison.
+     * @param imageCount  Number of image.
+     * @param imageFormat Image compression format of output data
+     * @param STDformat   ISO format of output data
+     * @return output data will receive as IBSM_StandardFormatData
+     * @throws IBScanException
+     */
+    public Object ConvertImageToISOANSI(ImageDataExt[] image, int imageCount, IBCommon.ImageFormat imageFormat,StandardFormat STDformat) throws IBScanException
+    {
+        final NativeError error   = new NativeError();
+        final Object      returns = ConvertImageToISOANSINative(image, imageCount, imageFormat.toCode(),STDformat.toCode(), error);
+        handleError(error); /* throws exception if necessary */
+        
+        return (returns);
+    }
 
     /**
      * WSQ compresses grayscale fingerprint image save to File
@@ -2473,6 +2529,23 @@ public class IBScanDevice
         handleError(error); /* throws exception if necessary */
         
         return  (nRc);
+    }
+
+
+	/**
+     * Save StandardFileData as File
+     * 
+     * @param STDFormatData  StandardFormatData structure
+     * @param filename       File save name
+     * @throws IBScanException
+     */
+    public int SaveStandardFile(StandardFormatData STDFormatData, String filename ) throws IBScanException
+    {
+        final NativeError error   = new NativeError();
+        final int    filepath = SaveStandardFileNative(STDFormatData, filename , error);
+        handleError(error); /* throws exception if necessary */
+        
+        return  (filepath);
     }
     /**
      * Generate scaled version of image.
@@ -3425,15 +3498,18 @@ public class IBScanDevice
     private native int wsqEncodeToFileNative(String filename,byte[] image, int width, int height, int pitch,
     		int bitPerPixel, int pixelPerInch, double bitRate, String commentType, NativeError error);
     
-    /* Native method for wsqEncodeToMemNative(). */
+    /* Native method for wsqEncodeToMem(). */
     private native Object[] wsqEncodeToMemNative(byte[] image, int width, int height, int pitch,
     		int bitPerPixel, int pixelPerInch, double bitRate, String commentText, NativeError error);
     
-    /* Native method for wsqDecodeToMemNative(). */
+    /* Native method for wsqDecodeToMem(). */
     private native Object[] wsqDecodeToMemNative(byte[] compressedImage, int compressedLength, NativeError error);
     
-    /* Native method for SaveRAWImageNative(). */
+    /* Native method for SaveRAWImage(). */
     private native int SaveRAWImageNative(byte[] writeBuffer, int writeLength, String fileName,NativeError error);
+
+	/* Native method for SaveStandardFile(). */
+    private native int SaveStandardFileNative(StandardFormatData STDFormatData, String filename, NativeError error);
 
     /* Native method for generateZoomOutImageEx(). */
     private native int generateZoomOutImageExNative(byte[] image, int inWidth, int inHeight,
@@ -3491,6 +3567,9 @@ public class IBScanDevice
 	
 	/* Native method for SetEncryptionKeyNative(). */
     private native int SetEncryptionKeyNative(byte[] encryptionKey, int encMode, NativeError error);
+	
+	/* Native method for ConvertImageToISOANSI(). */
+    private native Object ConvertImageToISOANSINative(ImageDataExt[] image, int imageCount, int imageFormat, int STDformat, NativeError error);
 
     /* *********************************************************************************************
      * STATIC BLOCKS

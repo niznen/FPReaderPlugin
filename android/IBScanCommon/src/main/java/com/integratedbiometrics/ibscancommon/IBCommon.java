@@ -10,6 +10,14 @@
  *     
  * HISTORY:
  *     2013/03/26  First version.
+ *     2022/04/14  Added StandardFormatData Class structure
+ *                        Added enumeration value to StandardFormat
+ *							(STANDARD_FORMAT_ISO_19794_2_2005,
+ *                           STANDARD_FORMAT_ISO_19794_4_2005,
+ *                           STANDARD_FORMAT_ISO_19794_2_2011,
+ *                           STANDARD_FORMAT_ISO_19794_4_2011,
+ *                           STANDARD_FORMAT_ANSI_INCITS_378_2004,
+*                            STANDARD_FORMAT_ANSI_INCITS_381_2004)
  ************************************************************************************************ */
 
 package com.integratedbiometrics.ibscancommon;
@@ -42,12 +50,13 @@ public class IBCommon
 		public final short               imageSizeY;
 		public final byte                scaleUnit;
 		public final byte                bitDepth;
+		public final int				 imageDataLength;
 		public final byte[]              imageData;
 
 		protected ImageDataExt(int imageFormatCode, int impressionTypeCode, int fingerPositionCode,
 				int captureDeviceTechIdCode, short captureDeviceVendorId, short captureDeviceTypeId,
 				short scanSamplingX, short scanSamplingY, short imageSamplingX, short imageSamplingY,
-				short imageSizeX, short imageSizeY, byte scaleUnit, byte bitDepth, byte[] imageData)
+				short imageSizeX, short imageSizeY, byte scaleUnit, byte bitDepth, int imageDataLength, byte[] imageData)
 		{
 			this.imageFormat           = ImageFormat.fromCode(imageFormatCode);
 			this.impressionType        = ImpressionType.fromCode(impressionTypeCode);
@@ -63,9 +72,10 @@ public class IBCommon
 			this.imageSizeY            = imageSizeY;
 			this.scaleUnit             = scaleUnit;
 			this.bitDepth              = bitDepth;
+			this.imageDataLength       = imageDataLength;
 			this.imageData             = imageData;
 		}
-		
+	
 		@Override
 		public String toString()
 		{
@@ -80,6 +90,31 @@ public class IBCommon
 					       + "Image size = "               + this.imageSizeX     + " x " + this.imageSizeY     + "\n"
 					       + "Scale unit = "               + this.scaleUnit                                    + "\n";
 			return (s);
+		}
+	}
+	
+	/**
+	 * Container to hold image data StandardFormatData (IBSM_StandardFormatData)
+	 */
+	public static class StandardFormatData
+	{
+		/* Pointer to data buffer.  If this structure is supplied by a callback function, this pointer 
+		 * must not be retained; the data should be copied to an application buffer for any processing
+		 * after the callback returns. */
+		public final byte[]              Data;
+		
+		/* Data Length (in bytes). */
+		public final long		         DataLength;
+		
+		/* Standard Format 
+		 * (ISO 19794-2:2005, ISO 19794-4:2005, ISO 19794-2:2011, ISO 19794-4:2011, ANSI/INCITS 378:2004, ANSI/INCITS 381:2004) */
+		StandardFormat     Format;
+		
+		protected StandardFormatData(byte[] Data, long DataLength, int Format)
+		{
+			this.Data = Data;
+			this.DataLength = DataLength;
+			this.Format = StandardFormat.fromCode(Format);
 		}
 	}
 	
@@ -292,6 +327,46 @@ public class IBCommon
         public static CaptureDeviceTechId fromCode(int code)
         {
             for (CaptureDeviceTechId t : CaptureDeviceTechId.values())
+            {
+                if (t.code == code)
+                {
+                    return (t);
+                }
+            }
+            return (null);
+        }
+
+        /* Get native value for Java object. */
+        public int toCode()
+        {
+            return (this.code);
+        }
+    }
+	
+	/**
+     * StandardFormat (IBSM_StandardFormat)
+     */
+    public static enum StandardFormat
+    {
+    	STANDARD_FORMAT_ISO_19794_2_2005(0),
+    	STANDARD_FORMAT_ISO_19794_4_2005(1),
+    	STANDARD_FORMAT_ISO_19794_2_2011(2),
+    	STANDARD_FORMAT_ISO_19794_4_2011(3),
+    	STANDARD_FORMAT_ANSI_INCITS_378_2004(4),
+    	STANDARD_FORMAT_ANSI_INCITS_381_2004(5);
+
+        /* Native value for enumeration. */
+        private final int code;
+
+        StandardFormat(int code)
+        {
+            this.code = code;
+        }
+
+        /* Find Java object from native value. */
+        public static StandardFormat fromCode(int code)
+        {
+            for (StandardFormat t : StandardFormat.values())
             {
                 if (t.code == code)
                 {
