@@ -1,6 +1,6 @@
 {
   "name": "ib-colombo-fp-scanner",
-  "version": "0.0.9",
+  "version": "0.1.2",
   "description": "Capacitor Plugin for IB colombo FP reader",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",

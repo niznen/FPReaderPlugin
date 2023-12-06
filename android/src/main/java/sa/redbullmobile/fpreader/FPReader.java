@@ -21,7 +21,7 @@ import java.io.ObjectOutputStream;
 
 public class FPReader implements IBScanListener, IBScanDeviceListener {
 
-    private static final String TAG = "IBScanListener";
+    private static final String TAG = "RBM";
 
     public IBScan IBActivityScan;
     public Boolean IsIBScan = null;
@@ -39,8 +39,8 @@ public class FPReader implements IBScanListener, IBScanDeviceListener {
     public FPReader() {
     }
 
-    public FPReader(IBScan IBActivityScan, PluginCall call) {
-        //Log.d(TAG, "Initializing");
+    public FPReader(IBScan IBActivityScan, PluginCall call) throws IBScanException {
+        Log.d(TAG, "Initializing");
         callbackContext = call;
         this.IBActivityScan = IBActivityScan;
         this.IBActivityScan.setScanListener(this);
@@ -49,8 +49,8 @@ public class FPReader implements IBScanListener, IBScanDeviceListener {
     public String GetDeviceInfo(){
         String serial = "";
         try {
-            Log.d(TAG,""+IBActivityScan.getDeviceCount());
-            serial = IBActivityScan.getDeviceDescription(0).serialNumber;
+            Log.d(TAG,"Device Count: "+IBActivityScan.getDeviceCount());
+            //serial = IBActivityScan.getDeviceDescription(0).serialNumber;
         } catch (IBScanException e) {
             e.printStackTrace();
             return e.getMessage();

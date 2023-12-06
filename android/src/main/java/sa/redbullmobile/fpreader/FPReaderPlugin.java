@@ -1,6 +1,10 @@
 package sa.redbullmobile.fpreader;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.nfc.Tag;
 import android.util.Log;
@@ -15,6 +19,9 @@ import com.integratedbiometrics.ibscanultimate.IBScan;
 import com.integratedbiometrics.ibscanultimate.IBScan.SdkVersion;
 import com.integratedbiometrics.ibscanultimate.IBScanDevice;
 import com.integratedbiometrics.ibscanultimate.IBScanException;
+
+import java.util.HashMap;
+import java.util.Iterator;
 
 @CapacitorPlugin(name = "FPReader")
 public class FPReaderPlugin extends Plugin{
@@ -44,7 +51,7 @@ public class FPReaderPlugin extends Plugin{
     }
 
     @PluginMethod
-    public void getDeviceInfo(PluginCall call){
+    public void getDeviceInfo(PluginCall call) throws IBScanException {
         if(ibActivityScanListener == null) {
             requestPermission(call);
         }
@@ -59,18 +66,24 @@ public class FPReaderPlugin extends Plugin{
     }
 
     @PluginMethod
-    public void requestPermission(PluginCall call) {
+    public void requestPermission(PluginCall call) throws IBScanException {
+        debugMessage("RBM:"+"requestPermission");
         if(ibActivityScanListener == null) {
             IBScan ibScan = IBScan.getInstance(this.getContext());
+            debugMessage("RBM:"+"gotInstance: "+ibScan.getDeviceCount());
             ibActivityScanListener = new FPReader(ibScan, call);
+            debugMessage("RBM:"+"FPReader Initiated: "+ibActivityScanListener.GetDeviceInfo());
             initDeviceSettings(call);
         }
-        if(!hasRequiredPermissions())
+        if(!hasRequiredPermissions()) {
+            debugMessage("RBM:"+"Else");
             requestAllPermissions(call, "onPermsCallback");
+        }
     }
 
     @PermissionCallback
     private void onPermsCallback(PluginCall call){
+        debugMessage("RBM:"+"onPermsCallback: "+hasRequiredPermissions()+"\n");
         if (hasRequiredPermissions()) {
             IBScan ibScan = ibActivityScanListener.IBActivityScan;
             ibActivityScanListener.IsIBScan = true;
@@ -105,8 +118,8 @@ public class FPReaderPlugin extends Plugin{
 
 
     @PluginMethod
-    public void capture(PluginCall callbackContext) {
-        debugMessage("Capture x Pressed CAPTURE captureB64");
+    public void capture(PluginCall callbackContext) throws IBScanException {
+        debugMessage("RBM: Capture x Pressed CAPTURE captureB64");
         dwTimeStart = System.currentTimeMillis();
 
         long result = 0;
@@ -114,8 +127,11 @@ public class FPReaderPlugin extends Plugin{
         ibActivityScanListener.SetCallbackContext(callbackContext);
 
         if(ibScanDevice == null){
-            IBScan ibScan = IBScan.getInstance(this.getContext());
+            debugMessage("RBM: Re-inititing Device\n");
+            IBScan ibScan = IBScan.getInstance(context);
+            debugMessage("RBM: Initiated: "+ibScan.getDeviceCount()+"\n");
             ibActivityScanListener = new FPReader(ibScan, callbackContext);
+            debugMessage("RBM: Created: "+ibActivityScanListener.GetDeviceInfo()+"\n");
             initDeviceSettings(callbackContext);
             ibScanDevice = ibActivityScanListener.IBActivityScanDevice;
             ibActivityScanListener.SetCallbackContext(callbackContext);
@@ -141,25 +157,49 @@ public class FPReaderPlugin extends Plugin{
 
         try {
             if (device == null || !device.isOpened()) {
-                debugMessage("Before getDeviceDescription()\n");
-                IBScan.DeviceDesc deviceDesc = ibScan.getDeviceDescription(0);
-                debugMessage("After getDeviceDescription()\n");
+                final UsbManager manager = (UsbManager)context.getSystemService(Context.USB_SERVICE);
+                final HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+                final Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+                UsbDevice usbDevice = deviceIterator.next();
+                debugMessage("RBM:USBDevice: " + usbDevice.toString() + "\n");
+                if(ibScan.getDeviceCount() > 0) {
+                    debugMessage("RBM:Before getDeviceCount()" + ibScan.getDeviceCount() + "\n");
+                    IBScan.DeviceDesc deviceDesc = ibScan.getDeviceDescription(0);
+                    debugMessage("RBM:After getDeviceDescription()\n");
 
-                ibActivityScanListener.SetDeviceSN(deviceDesc.serialNumber);
-                mDeviceSN = deviceDesc.serialNumber;
-                debugMessage("Setting props: Device: " + deviceDesc.serialNumber);
+                    ibActivityScanListener.SetDeviceSN(deviceDesc.serialNumber);
+                    mDeviceSN = deviceDesc.serialNumber;
+                    //ibActivityScanListener.SetDeviceSN(usbDevice.getSerialNumber());
+                    //mDeviceSN = usbDevice.getSerialNumber();
+                    debugMessage("RBM:Setting props: Device: " + usbDevice.getSerialNumber());
 
-                debugMessage("Before OpenDevice()\n");
-                device = ibScan.openDevice(0);
-                debugMessage("After OpenDevice()\n");
+                    debugMessage("RBM:Before OpenDevice()\n");
+                    device = ibScan.openDevice(0);
+                    debugMessage("RBM:After OpenDevice()\n");
+
+                    if (!device.isOpened())
+                        throw new Exception("Failed to open the device");
+
+                    ibActivityScanListener.IBActivityScanDevice = device;
+                    ibActivityScanListener.SetDeviceScanListener();
+                    debugMessage("Device Open Successful");
+                }else{
+                    debugMessage("RBM:isScanDevice()" + IBScan.isScanDevice(usbDevice) + "\n");
+                    final boolean isScanDevice = IBScan.isScanDevice(usbDevice);
+                    if (isScanDevice) {
+                        final boolean hasPermission = manager.hasPermission(usbDevice);
+                        debugMessage("RBM:hasPermission()" + hasPermission + "\n");
+                        if (!hasPermission)
+                        {
+                            debugMessage("RBM:before requestPermission()\n");
+                            ibScan.requestPermission(usbDevice.getDeviceId());
+                            debugMessage("RBM:after requestPermission()\n");
+                            debugMessage("RBM:hasPermission: "+hasPermission+"\n");
+                        }
+                        //device = ibScan.openDevice(0);
+                    }
+                }
             }
-
-            if (!device.isOpened())
-                throw new Exception("Failed to open the device");
-
-            ibActivityScanListener.IBActivityScanDevice = device;
-            ibActivityScanListener.SetDeviceScanListener();
-            debugMessage("Device Open Successful");
         } catch (Exception e) {
             debugMessage(""+e.getMessage());
             e.printStackTrace();
