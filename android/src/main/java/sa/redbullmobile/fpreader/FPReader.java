@@ -50,7 +50,7 @@ public class FPReader implements IBScanListener, IBScanDeviceListener {
         String serial = "";
         try {
             Log.d(TAG,"Device Count: "+IBActivityScan.getDeviceCount());
-            //serial = IBActivityScan.getDeviceDescription(0).serialNumber;
+            serial = IBActivityScan.getDeviceDescription(0).serialNumber;
         } catch (IBScanException e) {
             e.printStackTrace();
             return e.getMessage();
