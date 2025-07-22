@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.iml" filepath="$PROJECT_DIR$/.idea/modules/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IBScanCommon/android.IBScanCommon.iml" filepath="$PROJECT_DIR$/.idea/modules/IBScanCommon/android.IBScanCommon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IBScanCommon/android.IBScanCommon.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/IBScanCommon/android.IBScanCommon.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IBScanCommon/android.IBScanCommon.main.iml" filepath="$PROJECT_DIR$/.idea/modules/IBScanCommon/android.IBScanCommon.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IBScanCommon/android.IBScanCommon.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/IBScanCommon/android.IBScanCommon.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IBScanUltimate/android.IBScanUltimate.iml" filepath="$PROJECT_DIR$/.idea/modules/IBScanUltimate/android.IBScanUltimate.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IBScanUltimate/android.IBScanUltimate.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/IBScanUltimate/android.IBScanUltimate.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IBScanUltimate/android.IBScanUltimate.main.iml" filepath="$PROJECT_DIR$/.idea/modules/IBScanUltimate/android.IBScanUltimate.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IBScanUltimate/android.IBScanUltimate.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/IBScanUltimate/android.IBScanUltimate.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/android.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1500476383/android.capacitor-android.iml" filepath="$PROJECT_DIR$/.idea/modules/1500476383/android.capacitor-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1500476383/android.capacitor-android.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/1500476383/android.capacitor-android.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1500476383/android.capacitor-android.main.iml" filepath="$PROJECT_DIR$/.idea/modules/1500476383/android.capacitor-android.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1500476383/android.capacitor-android.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/1500476383/android.capacitor-android.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.main.iml" filepath="$PROJECT_DIR$/.idea/modules/android.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/android.unitTest.iml" />
+    </modules>
+  </component>
+</project>

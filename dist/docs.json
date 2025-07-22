@@ -1,0 +1,45 @@
+{
+  "api": {
+    "name": "FPReaderPlugin",
+    "slug": "fpreaderplugin",
+    "docs": "",
+    "tags": [],
+    "methods": [
+      {
+        "name": "getDeviceInfo",
+        "signature": "() => Promise<any>",
+        "parameters": [],
+        "returns": "Promise<any>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "getdeviceinfo"
+      },
+      {
+        "name": "requestPermission",
+        "signature": "() => Promise<any>",
+        "parameters": [],
+        "returns": "Promise<any>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "requestpermission"
+      },
+      {
+        "name": "capture",
+        "signature": "() => Promise<any>",
+        "parameters": [],
+        "returns": "Promise<any>",
+        "tags": [],
+        "docs": "",
+        "complexTypes": [],
+        "slug": "capture"
+      }
+    ],
+    "properties": []
+  },
+  "interfaces": [],
+  "enums": [],
+  "typeAliases": [],
+  "pluginConfigs": []
+}

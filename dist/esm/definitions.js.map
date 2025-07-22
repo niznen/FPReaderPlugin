@@ -1,0 +1,1 @@
+{"version":3,"file":"definitions.js","sourceRoot":"","sources":["../../src/definitions.ts"],"names":[],"mappings":"","sourcesContent":["export interface FPReaderPlugin {\n  getDeviceInfo(): Promise<any>;\n  requestPermission(): Promise<any>;\n  capture(): Promise<any>;\n}\n"]}
